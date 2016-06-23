@@ -360,7 +360,7 @@
             return a === false || a === "" || a === null || a === undefined;
         },
         isEmptyObject: function(a) {
-            return this.isEmpty(a) === true || a.length === 0;
+            return this.isEmpty(a) === true || Object.keys(a).length === 0 && a.constructor === Object;
         },
         isElement: function(b) {
             return a(b).length > 0;
@@ -432,9 +432,13 @@
         mustAccept: false,
         selectedCustomClass: "bg-primary",
         items: [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" ],
+        itemProperty: null,
         input: "input",
         component: ".input-group-addon",
         container: false,
+        updateComponentOnChange: true,
+        pickerItemClass: "picker-item",
+        itemValueSelector: "i",
         templates: {
             popover: '<div class="picker-popover popover"><div class="arrow"></div>' + '<div class="popover-title"></div><div class="popover-content"></div></div>',
             footer: '<div class="popover-footer"></div>',
@@ -517,7 +521,9 @@
             };
             for (var d in this.options.items) {
                 var e = a(this.options.templates.pickerItem);
-                e.find("i").html(this.options.items[d]);
+                var f = this.options.items[d];
+                var g = this.options.itemProperty ? f[this.options.itemProperty] : f;
+                e.find(this.options.itemValueSelector).html(g);
                 e.data("pickerValue", this.options.items[d]).on("click.picker", c);
                 this.picker.find(".picker-items").append(e);
             }
@@ -768,14 +774,17 @@
             return true;
         },
         _updateComponents: function() {
-            this.picker.find(".picker-item.picker-selected").removeClass("picker-selected " + this.options.selectedCustomClass);
-            if (!b.isEmpty(this.pickerValue)) {
-                this.picker.find(".picker-item i:contains(" + this.pickerValue + ")").parent().addClass("picker-selected " + this.options.selectedCustomClass);
+            this.picker.find("." + this.options.pickerItemClass + ".picker-selected").removeClass("picker-selected " + this.options.selectedCustomClass);
+            var c = this.options.itemProperty ? this.pickerValue[this.options.itemProperty] : this.pickerValue;
+            if (!b.isEmpty(c)) {
+                this.picker.find("." + this.options.pickerItemClass + " " + this.options.itemValueSelector).filter(function() {
+                    return a(this).html() == c;
+                }).parent().addClass("picker-selected " + this.options.selectedCustomClass);
             }
-            if (this.hasComponent()) {
-                var a = this.component.find("i");
-                if (a.length > 0) {
-                    a.html(this.getValue());
+            if (this.hasComponent() && this.options.updateComponentOnChange) {
+                var d = this.component.find(this.options.itemValueSelector);
+                if (d.length > 0) {
+                    d.html(this.getValue());
                 } else {
                     this.component.html(this.getValueHtml());
                 }
@@ -793,7 +802,7 @@
             return false;
         },
         getValid: function(a) {
-            if (!b.isString(a)) {
+            if (this.options.itemProperty && b.isEmptyObject(a) || !this.options.itemProperty && !b.isString(a)) {
                 a = "";
             }
             if (b.inArray(a, this.options.items) || a === "") {
@@ -817,7 +826,8 @@
             }
         },
         getValue: function(a) {
-            return a ? a : this.pickerValue;
+            var b = this.options.itemProperty ? this.pickerValue[this.options.itemProperty] : this.pickerValue;
+            return a ? a : b;
         },
         getValueHtml: function() {
             return "<i>" + this.getValue() + "</i>";
@@ -843,6 +853,7 @@
                 b = this.input.val();
             } else {
                 b = this.element.data("pickerValue");
+                b = this.options.itemProperty ? b[this.options.itemProperty] : b;
             }
             if (b === undefined || b === "" || b === null || b === false) {
                 b = a;
@@ -869,11 +880,11 @@
         },
         filter: function(c) {
             if (b.isEmpty(c)) {
-                this.picker.find(".picker-item").show();
+                this.picker.find("." + this.options.pickerItemClass).show();
                 return a(false);
             } else {
                 var d = [];
-                this.picker.find(".picker-item").each(function() {
+                this.picker.find("." + this.options.pickerItemClass).each(function() {
                     var b = a(this);
                     var e = b.text().toLowerCase();
                     var f = false;
