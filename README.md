@@ -4,9 +4,9 @@ bootstrap-popover-picker
 Generic jQuery plugin template for building pickers using Bootstrap popovers,
 fully customizable with a powerful base API, including jQuery.UI position plugin.
 
-[View demos](http://mjolnic.github.io/bootstrap-popover-picker/)
+[View demos](https://itsjavi.com/bootstrap-popover-picker/)
 
-[How to use the plugin without inputs](http://jsfiddle.net/mjolnic/cw5eLpvf/)
+[How to use the plugin without inputs](http://jsfiddle.net/itsjavi/cw5eLpvf/)
 
 ## Instantiation
 

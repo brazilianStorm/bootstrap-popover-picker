@@ -890,7 +890,7 @@
                     var f = false;
                     try {
                         f = new RegExp(c, "g");
-                    } catch (g) {
+                    } catch (a) {
                         f = false;
                     }
                     if (f !== false && e.match(f)) {
